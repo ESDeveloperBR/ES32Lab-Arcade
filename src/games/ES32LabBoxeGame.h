@@ -3,5 +3,5 @@
 #include "GameDefinition.h"
 
 namespace ArcadeGames {
-extern const Arcade::GameDefinition ES32LabBoxGame;
+extern const Arcade::GameDefinition ES32LabBoxeGame;
 }  // namespace ArcadeGames

@@ -111,7 +111,7 @@
 #include <ES32Lab.h>  // Official ES32Lab library | Biblioteca oficial ES32Lab
 #include <TFT_eSPI.h> // TFT_eSprite framebuffer from the ES Developer TFT package | Framebuffer TFT_eSprite do pacote TFT da ES Developer
 
-#include "ES32LabBoxGame.h"
+#include "ES32LabBoxeGame.h"
 
 namespace ArcadeGames {
 namespace ES32LabBoxModule {
@@ -7335,8 +7335,8 @@ void update() {
 
 }  // namespace ES32LabBoxModule
 
-const Arcade::GameDefinition ES32LabBoxGame = {
-  "ES32 LAB BOX",
+const Arcade::GameDefinition ES32LabBoxeGame = {
+  "ES32LAB BOXE",
   "Boxe, fases e chefao",
   ES32LabBoxModule::begin,
   ES32LabBoxModule::update

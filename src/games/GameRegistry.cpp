@@ -1,7 +1,7 @@
 #include "GameRegistry.h"
 
 #include "EnduroGame.h"
-#include "ES32LabBoxGame.h"
+#include "ES32LabBoxeGame.h"
 #include "FrogAdventureGame.h"
 #include "SnakeGame.h"
 #include "SpaceInvaderGame.h"
@@ -16,7 +16,7 @@ const Arcade::GameDefinition* const GAMES[] = {
   &SnakeGame,
   &EnduroGame,
   &FrogAdventureGame,
-  &ES32LabBoxGame
+  &ES32LabBoxeGame
 };
 
 constexpr size_t GAME_COUNT = sizeof(GAMES) / sizeof(GAMES[0]);
