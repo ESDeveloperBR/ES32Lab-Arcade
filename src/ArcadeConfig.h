@@ -2,14 +2,14 @@
 
 #include <Arduino.h>
 
-// Os valores abaixo chegam pelo platformio.ini.
-// Os fallbacks mantêm compatibilidade com compilação fora do PlatformIO.
+// Valores recebidos do platformio.ini.
+// Os fallbacks permitem compilar o fonte fora do PlatformIO.
 #ifndef ES32LAB_ARCADE_WIFI_SSID
-#define ES32LAB_ARCADE_WIFI_SSID "N/A"
+#define ES32LAB_ARCADE_WIFI_SSID ""
 #endif
 
 #ifndef ES32LAB_ARCADE_WIFI_PASSWORD
-#define ES32LAB_ARCADE_WIFI_PASSWORD "N/A"
+#define ES32LAB_ARCADE_WIFI_PASSWORD ""
 #endif
 
 #ifndef ES32LAB_ARCADE_OTA_HOSTNAME
@@ -17,27 +17,41 @@
 #endif
 
 #ifndef ES32LAB_ARCADE_OTA_PASSWORD
-#define ES32LAB_ARCADE_OTA_PASSWORD "N/A"
+#define ES32LAB_ARCADE_OTA_PASSWORD ""
+#endif
+
+// Compatibilidade com o nome usado no firmware de treinamento.
+// O PlatformIO pode definir diretamente OTA_MANIFEST_URL ou
+// ES32LAB_ARCADE_MANIFEST_URL.
+#ifndef ES32LAB_ARCADE_MANIFEST_URL
+  #ifdef OTA_MANIFEST_URL
+    #define ES32LAB_ARCADE_MANIFEST_URL OTA_MANIFEST_URL
+  #else
+    #define ES32LAB_ARCADE_MANIFEST_URL ""
+  #endif
 #endif
 
 namespace ArcadeConfig {
 
-// Wi-Fi usado somente enquanto o menu principal estiver aberto.
+// Credencial inicial/fallback. Ela somente entra no armazenamento ES_Wifi
+// quando ainda nao existe nenhuma rede cadastrada na NVS.
 static constexpr char WIFI_SSID[] =
   ES32LAB_ARCADE_WIFI_SSID;
 
 static constexpr char WIFI_PASSWORD[] =
   ES32LAB_ARCADE_WIFI_PASSWORD;
 
-// Identificação exibida pelas ferramentas de atualização em rede.
 static constexpr char OTA_HOSTNAME[] =
   ES32LAB_ARCADE_OTA_HOSTNAME;
 
-// Senha de autorização do OTA.
 static constexpr char OTA_PASSWORD[] =
   ES32LAB_ARCADE_OTA_PASSWORD;
 
-// A tentativa é única em cada inicialização. Se falhar, o arcade segue offline.
-static constexpr unsigned long WIFI_CONNECT_TIMEOUT_MS = 6000UL;
+static constexpr char MANIFEST_URL[] =
+  ES32LAB_ARCADE_MANIFEST_URL;
+
+static constexpr uint32_t WIFI_CONNECT_TIMEOUT_MS = 8000UL;
+static constexpr uint32_t AUTO_UPDATE_TIMEOUT_MS = 5000UL;
+static constexpr uint32_t MANUAL_UPDATE_TIMEOUT_MS = 15000UL;
 
 }  // namespace ArcadeConfig

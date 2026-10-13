@@ -2,10 +2,10 @@
 
 #include <Arduino.h>
 
-// No PlatformIO, a versão é definida na seção [arcade] do platformio.ini.
-// Este fallback mantém o projeto utilizável em outros ambientes.
+// A versao oficial deve vir do platformio.ini.
+// Este fallback existe apenas para compilacoes fora do fluxo de release.
 #ifndef ES32LAB_ARCADE_VERSION
-#define ES32LAB_ARCADE_VERSION "N/A"
+#define ES32LAB_ARCADE_VERSION "1.4.0"
 #endif
 
 namespace ArcadeVersion {
@@ -18,7 +18,6 @@ static constexpr char DISPLAY_TEXT[] =
 
 static constexpr char PROJECT_NAME[] = "ES32Lab Arcade";
 
-// Data e hora são preenchidas automaticamente pelo compilador.
 static constexpr char BUILD_DATE[] = __DATE__;
 static constexpr char BUILD_TIME[] = __TIME__;
 

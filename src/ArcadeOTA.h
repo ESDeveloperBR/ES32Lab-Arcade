@@ -1,20 +1,18 @@
 #pragma once
 
 #include <Arduino.h>
-#include <ES32Lab.h>
 
 class ArcadeOTA {
 public:
   enum class State : uint8_t {
     IDLE,
-    CONNECTING,
     READY,
     UPDATING,
     UNAVAILABLE
   };
 
   void begin();
-  void update();
+  void update(bool networkConnected);
   void stop();
 
   bool isReady() const;
@@ -25,8 +23,8 @@ public:
 private:
   void configureService();
   void setState(State newState);
-  void disableNetwork();
 
-  ES_TimeInterval connectionTimeout;
+  bool enabled = false;
+  bool configured = false;
   State currentState = State::IDLE;
 };
