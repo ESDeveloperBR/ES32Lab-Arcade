@@ -306,8 +306,8 @@ function ResolvePath($p,$base){if([IO.Path]::IsPathRooted($p)){return [IO.Path]:
 
 
 # ======================================================================
-# ES32Lab Release v2.0.2 - RAMIFICACAO COMPOSTA
-# A rotina original de Release Simples, abaixo, permanece sem alteracoes.
+# ES32Lab Release v2.0.3 - RAMIFICACAO COMPOSTA
+# Rotina composta preservada da v2.0.2. A rotina simples recebeu somente suporte a JPG.
 # Composite detectado somente quando existem secoes [release_<ambiente>].
 # ======================================================================
 
@@ -824,7 +824,7 @@ function CRPublish($root,$repo,$version,$dist){
   Write-Host "URLs /releases/latest/download/ permanecem relativas ao catalogo atual."
 }
 function InvokeComposite($root,$ini){
-  Title "ES32Lab - Release COMPOSTO v2.0.2"
+  Title "ES32Lab - Release COMPOSTO v2.0.3"
   if(-not $ini.ContainsKey("release")){throw "Release composto requer [release] com repository e version."}
   $global=$ini["release"]
   $repo=Repo (Ask "repository" "Repositorio de PUBLICACAO (catalogo)." (CRValue $global "repository") $true "ESDeveloperBR/ES32Lab-LIB-Examples")
@@ -881,8 +881,43 @@ if(Test-Path -LiteralPath $crIniPath -PathType Leaf){
     }
   }
 }
+# Localiza uma thumbnail JPG com nome padrao na MESMA pasta de um .cpp.
+# Usa src_dir quando definido ou src/ por padrao. Nao modifica o modo composto.
+function FindSimpleThumbnail($root,$ini,$bn){
+  $sourceDir="src"
+  if($null-ne $ini -and $ini.ContainsKey("platformio")){
+    $pioSettings=$ini["platformio"]
+    if($pioSettings.ContainsKey("src_dir") -and [string]$pioSettings["src_dir"]){
+      $sourceDir=([string]$pioSettings["src_dir"]).Trim()
+    }
+  }
+
+  $srcFolder=ResolvePath $sourceDir $root
+  $expected=$bn+"-thumb.jpg"
+  if(-not(Test-Path -LiteralPath $srcFolder -PathType Container)){
+    Write-Host "[ATENCAO] Pasta de fontes nao encontrada para procurar a thumbnail: $srcFolder"
+    return $null
+  }
+
+  $thumbCandidates=@(Get-ChildItem -LiteralPath $srcFolder -Recurse -File -Filter "*.jpg" -ErrorAction SilentlyContinue |
+    Where-Object {$_.Name -ieq $expected} |
+    Where-Object {
+      @(Get-ChildItem -LiteralPath $_.DirectoryName -File -Filter "*.cpp" -ErrorAction SilentlyContinue).Count -gt 0
+    })
+
+  if($thumbCandidates.Count -gt 1){
+    $paths=($thumbCandidates | ForEach-Object {$_.FullName}) -join "`n  "
+    throw "Mais de uma thumbnail '$expected' ao lado de arquivos .cpp. Revise as pastas:`n  $paths"
+  }
+  if($thumbCandidates.Count -eq 1){return $thumbCandidates[0].FullName}
+
+  Write-Host "[ATENCAO] Thumbnail '$expected' nao encontrada na pasta do codigo-fonte .cpp."
+  Write-Host "O Release Simples continuara sem anexar a imagem."
+  return $null
+}
+
 # ======================================================================
-# Abaixo: implementacao original v1.8 (Release Simples, SEM ALTERACOES).
+# Abaixo: implementacao v1.8 (Release Simples) com suporte adicional a JPG.
 # ======================================================================
 
 try{
@@ -1092,6 +1127,48 @@ try{
     }
   }
 
+  # ----------------------------------------------------------
+  # Thumbnail JPG (Release Simples v2.0.3)
+  # ----------------------------------------------------------
+  # Nome unico: [bin_name]-thumb.jpg, na mesma pasta de um .cpp.
+  # O INI tem prioridade quando a URL diverge da URL calculada.
+  $thumbName="$bn-thumb.jpg"
+  $thumbOut=Join-Path $dist $thumbName
+  $hasThumb=$false
+  $thumbSrc=FindSimpleThumbnail $root $ini $bn
+  if($thumbSrc){
+    Copy-Item -LiteralPath $thumbSrc -Destination $thumbOut -Force
+    $hasThumb=$true
+    Write-Host "Thumbnail copiada para dist/: $thumbName"
+    $calculatedThumbUrl=AssetUrl $repo $thumbName
+    $configuredThumbUrl=if($null-ne $thumb){$thumb.Trim()}else{""}
+    if(-not $configuredThumbUrl){
+      $thumb=$calculatedThumbUrl
+      Write-Host "thumbnail_url nao informado: usando URL calculada para a imagem publicada."
+      Write-Host $thumb
+    }elseif($configuredThumbUrl -ine $calculatedThumbUrl){
+      Write-Host ""
+      Write-Host "[ATENCAO] thumbnail_url diferente da imagem que sera publicada."
+      Write-Host "Configurada no platformio.ini:"
+      Write-Host $configuredThumbUrl
+      Write-Host "Calculada para o arquivo $thumbName :"
+      Write-Host $calculatedThumbUrl
+      Write-Host "Manter a URL do platformio.ini e o comportamento PADRAO."
+      if(YesNo "Usar a URL calculada APENAS no manifest.json?" $false){
+        $thumb=$calculatedThumbUrl
+        Write-Host "Manifesto usara a URL calculada. platformio.ini nao foi alterado."
+      }else{
+        $thumb=$configuredThumbUrl
+        Write-Host "[ATENCAO] URL do INI mantida no manifesto; confira se o link existe."
+      }
+    }else{
+      $thumb=$configuredThumbUrl
+      Write-Host "thumbnail_url conferido: OK"
+    }
+  }elseif($thumb){
+    Write-Host "[ATENCAO] thumbnail_url mantido no manifesto, mas nenhum JPG local sera anexado."
+  }
+
   if(-not$hasFw-and-not$hasFull){throw "E necessario firmware ou FULL."}
 
   Title "Manifesto"
@@ -1137,6 +1214,7 @@ try{
   if($hasFw){Write-Host "Firmware: $fwName";Write-Host "SHA-256: $(Sha $fwOut)"}
   if($hasData){Write-Host "Dados: $dataName";Write-Host "SHA-256: $(Sha $dataOut)"}
   if($hasFull){Write-Host "Full: $fullName";Write-Host "SHA-256: $(Sha $fullOut)"}
+  if($hasThumb){Write-Host "Thumbnail: $thumbName"}
 
   if(-not(YesNo "Publicar agora como GitHub Release?" $true)){
     Write-Host "Release preparada localmente."
@@ -1286,6 +1364,7 @@ try{
     if($hasFw){$assets+=$fwOut}
     if($hasData){$assets+=$dataOut}
     if($hasFull){$assets+=$fullOut}
+    if($hasThumb){$assets+=$thumbOut}
 
     $releaseArguments=@("release","create",$tag)+$assets+@(
       "--repo",$repo,
