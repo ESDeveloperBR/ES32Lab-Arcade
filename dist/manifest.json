@@ -1,7 +1,7 @@
 {
     "name":  "ES32Lab Arcade",
     "developer":  "ES Developer",
-    "version":  "1.4.6",
+    "version":  "1.4.7",
     "version_date":  "2026-10-31",
     "description":  "Diversos jogos para sua divesão em sua ES32Lab.",
     "manifest_url":  "https://raw.githubusercontent.com/ESDeveloperBR/ES32Lab-Arcade/refs/heads/main/dist/manifest.json",
@@ -30,7 +30,7 @@
     "website":  "https://www.esdeveloper.com.br/",
     "repository":  "ESDeveloperBR/ES32Lab-Arcade",
     "firmware_url":  "https://raw.githubusercontent.com/ESDeveloperBR/ES32Lab-Arcade/main/dist/es32lab_arcade.bin",
-    "firmware_sha256":  "888638fdc16a18e8ea6f17f56105d3f6e3ff77a27e81ee0ce254f08901ef797d",
+    "firmware_sha256":  "1a16dd0bf2c9255e1ace80828ea2e72bf067ceb47995953a5895181180c2503a",
     "full_url":  "https://raw.githubusercontent.com/ESDeveloperBR/ES32Lab-Arcade/main/dist/es32lab_arcade-full.bin",
-    "full_sha256":  "0e04668a8fd2d336e62d5bc56fb50cfa2e6617bc5827bfee957a316f33d3b7af"
+    "full_sha256":  "adf973b46fb4090bb35b75dc1c78c937f087e8b120c305e4fd0da2ae65227659"
 }
